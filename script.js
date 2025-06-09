@@ -1,45 +1,30 @@
-// Your code here.
-const cubes = document.querySelectorAll('.item');
 const container = document.querySelector('.items');
 
-let selectedCube = null;
-let offsetX = 0;
-let offsetY = 0;
+let isDown = false;
+let startX;
+let scrollLeft;
 
-cubes.forEach(cube => {
-  cube.style.position = 'absolute'; // Make each cube absolutely positioned
-  cube.addEventListener('mousedown', (e) => {
-    selectedCube = cube;
-    // Calculate offset of click within the cube
-    offsetX = e.clientX - cube.offsetLeft;
-    offsetY = e.clientY - cube.offsetTop;
-    cube.style.cursor = 'grabbing';
-  });
+container.addEventListener('mousedown', (e) => {
+  isDown = true;
+  container.classList.add('active');
+  startX = e.pageX - container.offsetLeft;
+  scrollLeft = container.scrollLeft;
 });
 
-document.addEventListener('mousemove', (e) => {
-  if (!selectedCube) return;
-
-  // Calculate new positions relative to container
-  let newLeft = e.clientX - offsetX - container.offsetLeft;
-  let newTop = e.clientY - offsetY - container.offsetTop;
-
-  // Boundary constraints
-  const maxLeft = container.clientWidth - selectedCube.offsetWidth;
-  const maxTop = container.clientHeight - selectedCube.offsetHeight;
-
-  // Clamp positions within boundaries
-  newLeft = Math.max(0, Math.min(newLeft, maxLeft));
-  newTop = Math.max(0, Math.min(newTop, maxTop));
-
-  // Apply position
-  selectedCube.style.left = newLeft + 'px';
-  selectedCube.style.top = newTop + 'px';
+container.addEventListener('mouseleave', () => {
+  isDown = false;
+  container.classList.remove('active');
 });
 
-document.addEventListener('mouseup', () => {
-  if (selectedCube) {
-    selectedCube.style.cursor = 'grab';
-    selectedCube = null;
-  }
+container.addEventListener('mouseup', () => {
+  isDown = false;
+  container.classList.remove('active');
+});
+
+container.addEventListener('mousemove', (e) => {
+  if (!isDown) return;
+  e.preventDefault();
+  const x = e.pageX - container.offsetLeft;
+  const walk = (x - startX) * 2; //scroll-fast
+  container.scrollLeft = scrollLeft - walk;
 });
